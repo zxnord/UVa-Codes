@@ -1,2 +1,2 @@
 # UVa-Codes
-Just kkep track of my UVa challenges
+Just keep track of my UVa challenges
