@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <unordered_set>
 #include <limits>
 
 //------------------------------------------------------------------------------
@@ -16,42 +16,15 @@ struct Proposal
 
 //------------------------------------------------------------------------------
 
-void checkResult(
-  const std::vector<struct Proposal>& expProposals,
-  int numOfRequirements)
+void processNewExperiment(
+  const std::unordered_set<std::string>& reqsSet,
+  int numExpProposals,
+  int requirements)
 {
   static int numberOfExperiments = 1;
   std::string result = "None";
   double bestCompliance = 0.0;
   float bestPrice = std::numeric_limits<float>::max();
-
-  for( const auto& prop : expProposals )
-  {
-    double currentCompliance =
-      double( prop.numOfReqsMet ) / double( numOfRequirements );
-
-    if( (currentCompliance > bestCompliance) ||
-      ((currentCompliance == bestCompliance) &&
-        (prop.price < bestPrice)) )
-    {
-      bestCompliance = currentCompliance;
-      bestPrice = prop.price;
-      result = prop.name;
-    }
-  }
-
-  std::cout << "RFP #" << numberOfExperiments++ << std::endl;
-  std::cout << result << std::endl << std::endl;
-}
-
-//------------------------------------------------------------------------------
-
-void processNewExperiment(
-  const std::unordered_map<std::string, bool>& reqsMap,
-  int numExpProposals,
-  int requirements)
-{
-  std::vector<struct Proposal> expProposals;
 
   for( int i = 0; i < numExpProposals; ++i )
   {
@@ -71,17 +44,27 @@ void processNewExperiment(
 
       std::getline(std::cin, currentReq);
 
-      if( reqsMap.find(currentReq) != reqsMap.end() )
+      if( reqsSet.find(currentReq) != reqsSet.end() )
       {
         ++newProp.numOfReqsMet;
       }
-
     }
 
-    expProposals.push_back(newProp);
+    double currentCompliance =
+      double( newProp.numOfReqsMet ) / double( requirements );
+
+    if( (currentCompliance > bestCompliance) ||
+      ((currentCompliance == bestCompliance) &&
+        (newProp.price < bestPrice)) )
+    {
+      bestCompliance = currentCompliance;
+      bestPrice = newProp.price;
+      result = newProp.name;
+    }
   }
 
-  checkResult(expProposals, requirements);
+  std::cout << "RFP #" << numberOfExperiments++ << std::endl;
+  std::cout << result << std::endl << std::endl;
 }
 
 //------------------------------------------------------------------------------
@@ -89,7 +72,7 @@ void processNewExperiment(
 void parseInput()
 {
   int requirements, proposals;
-  std::unordered_map<std::string, bool> reqsMap;
+  std::unordered_set<std::string> reqsSet;
 
   std::cin >> requirements >> proposals;
   std::cin.ignore();
@@ -101,13 +84,10 @@ void parseInput()
       std::string req;
       std::getline(std::cin, req);
 
-      if( reqsMap.find(req) == reqsMap.end() )
-      {
-        reqsMap[req] = true;
-      }
+      reqsSet.insert(req);
     }
 
-    processNewExperiment(reqsMap, proposals, requirements);
+    processNewExperiment(reqsSet, proposals, requirements);
 
     std::cin >> requirements >> proposals;
     std::cin.ignore();
