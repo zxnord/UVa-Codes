@@ -85,7 +85,13 @@ string getYearDayAsString(int yearDay, int year)
     }
   }
 
-  return to_string(month) + "/" + to_string(day) + "/" + to_string(year);
+  string monthStr = to_string(month);
+  string dayStr = to_string(day);
+
+  monthStr = (month < 10) ? "0" + monthStr : monthStr;
+  dayStr = (day < 10) ? "0" + dayStr : dayStr;
+
+  return monthStr + "/" + dayStr + "/" + to_string(year);
 }
 
 void checkCancerOrScorpio(string date, int nofExp)
